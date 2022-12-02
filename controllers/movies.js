@@ -10,7 +10,7 @@ module.exports.getMovies = async (req, res, next) => {
   const userId = req.user._id;
   try {
     const movies = await Movie.find({ owner: userId })
-      .exec()
+      // .exec()
       .populate('owner')
       .sort('-createdAt');
     return res.send(movies);
