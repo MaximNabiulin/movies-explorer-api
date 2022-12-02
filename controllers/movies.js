@@ -7,9 +7,12 @@ const NotFoundError = require('../errors/NotFoundError');
 const CREATED_STATUS_CODE = 201;
 
 module.exports.getMovies = async (req, res, next) => {
+  const userId = req.user._id;
   try {
-    const movies = await Movie.find({})
-      .populate('owner').sort('-createdAt');
+    const movies = await Movie.find({ owner: userId })
+      .exec()
+      .populate('owner')
+      .sort('-createdAt');
     return res.send(movies);
   } catch (err) {
     return next(err);
