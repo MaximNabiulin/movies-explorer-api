@@ -9,7 +9,16 @@ const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 
-const CREATED_STATUS_CODE = 201;
+const {
+  CREATED_STATUS_CODE,
+  AUTHORIZATION_OK_MESSAGE,
+  LOGOUT_MESSAGE,
+  NOT_FOUND_USER_ERROR,
+  VALIDATION_USER_ID_ERROR,
+  VALIDATION_USER_UPDATE_ERROR,
+  NOT_UNIQUE_EMAIL_ERROR,
+  VALIDATION_USER_CREATE_ERROR,
+} = require('../utils/responseMessage');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -26,7 +35,7 @@ module.exports.login = (req, res, next) => {
           httpOnly: true,
           // secure: true,
         })
-        .send({ token, message: 'Успешная Авторизация!' });
+        .send({ token, message: AUTHORIZATION_OK_MESSAGE });
     })
     .catch(next);
 };
@@ -37,7 +46,7 @@ module.exports.logout = (req, res) => {
       httpOnly: true,
       secure: true,
     })
-    .send({ message: 'Вы вышли из аккаунта' });
+    .send({ message: LOGOUT_MESSAGE });
 };
 
 module.exports.getCurrentUser = async (req, res, next) => {
@@ -45,12 +54,12 @@ module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new NotFoundError('Пользователь по указанному id не найден');
+      throw new NotFoundError(NOT_FOUND_USER_ERROR);
     }
     return res.send(user);
   } catch (err) {
     if (err.name === 'CastError') {
-      return next(new ValidationError('Передан некорректный id пользователя'));
+      return next(new ValidationError(VALIDATION_USER_ID_ERROR));
     }
     return next(err);
   }
@@ -67,12 +76,15 @@ module.exports.updateUserInfo = async (req, res, next) => {
       { new: true, runValidators: true },
     );
     if (!user) {
-      throw new NotFoundError('Пользователь по указанному id не найден');
+      throw new NotFoundError(NOT_FOUND_USER_ERROR);
     }
     return res.send(user);
   } catch (err) {
+    if (err.name === 'MongoServerError' && err.code === 11000) {
+      return next(new ConflictError(NOT_UNIQUE_EMAIL_ERROR));
+    }
     if (err.name === 'ValidationError') {
-      return next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
+      return next(new ValidationError(VALIDATION_USER_UPDATE_ERROR));
     }
     return next(err);
   }
@@ -99,10 +111,10 @@ module.exports.createUser = async (req, res, next) => {
     });
   } catch (err) {
     if (err.name === 'MongoServerError' && err.code === 11000) {
-      return next(new ConflictError('Такой Email уже зарегистрирован'));
+      return next(new ConflictError(NOT_UNIQUE_EMAIL_ERROR));
     }
     if (err.name === 'ValidationError') {
-      return next(new ValidationError('Переданы некорректные данные при создании пользователя'));
+      return next(new ValidationError(VALIDATION_USER_CREATE_ERROR));
     }
     return next(err);
   }

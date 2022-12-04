@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { VALIDATION_URL_ERROR } = require('../utils/responseMessage');
 const { isUrl } = require('../utils/validateUrl');
 
 const userSchema = new mongoose.Schema({
@@ -15,19 +16,27 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   year: {
-    type: Number,
+    type: String,
     required: true,
   },
   description: {
     type: String,
     required: true,
   },
+  image: {
+    type: String,
+    required: true,
+    validate: {
+      validator: isUrl,
+      message: VALIDATION_URL_ERROR,
+    },
+  },
   trailerLink: {
     type: String,
     required: true,
     validate: {
       validator: isUrl,
-      message: 'Введен некорректный URL',
+      message: VALIDATION_URL_ERROR,
     },
   },
   thumbnail: {
@@ -35,7 +44,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: isUrl,
-      message: 'Введен некорректный URL',
+      message: VALIDATION_URL_ERROR,
     },
   },
   owner: {
@@ -43,10 +52,10 @@ const userSchema = new mongoose.Schema({
     ref: 'user',
     required: true,
   },
-  // movieId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   required: true,
-  // },
+  movieId: {
+    type: Number,
+    required: true,
+  },
   nameRU: {
     type: String,
     required: true,
@@ -54,10 +63,6 @@ const userSchema = new mongoose.Schema({
   nameEN: {
     type: String,
     required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
   },
 });
 

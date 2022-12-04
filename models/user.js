@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 
 const AuthorizationError = require('../errors/AuthorizationError');
 
+const { VALIDATION_EMAIL_ERROR, AUTHORIZATION_VALIDATION_ERROR } = require('../utils/responseMessage');
+
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -11,7 +13,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: (v) => validator.isEmail(v),
-      message: 'Неверный формат почты',
+      message: VALIDATION_EMAIL_ERROR,
     },
   },
   password: {
@@ -27,18 +29,17 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new AuthorizationError('Неправильные почта или пароль'));
+        return Promise.reject(new AuthorizationError(AUTHORIZATION_VALIDATION_ERROR));
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new AuthorizationError('Неправильные почта или пароль'));
+            return Promise.reject(new AuthorizationError(AUTHORIZATION_VALIDATION_ERROR));
           }
 
           return user;
