@@ -6,10 +6,6 @@
 
 Ссылка на репозиторий проекта: [https://github.com/MaximNabiulin/movies-explorer-api/tree/level-1](https://github.com/MaximNabiulin/movies-explorer-api/tree/level-1).
 
-* Публичный IP: 51.250.71.104
-* Бэкенд сайта: [api.movies.nabiulin.nomoredomains.club](api.movies.nabiulin.nomoredomains.club)
-* Фронтенд сайта: В РАЗРАБОТКЕ
-
 ### Использование
 ------
 * Установите [Node js](https://nodejs.org/en/)
